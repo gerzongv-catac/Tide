@@ -2,6 +2,8 @@
  * El código fuente de este archivo es propiedad intelectual de Gerzon Gonzalez.
  * @author gerzon
  */
+using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
@@ -57,7 +59,7 @@ async Task Send(List<Data> list)
     try
     {
         var first = list.First();
-        var data = "ID:" + first.Station.Organization.Country.Code + "-" + first.Station.Code + "-00 DT:" + first.Time.ToString("yyyy MM dd HH mm") + "\r\n";
+        var data = "ID:" + first.Station!.Organization.Country.Code + "-" + first.Station.Code + "-00 DT:" + first.Time.ToString("yyyy MM dd HH mm") + "\r\n";
         var row = ":PRS /1";
         foreach (var str in list.Select(obj => "00000" + (int)(obj.Value * 1000)))
         {
@@ -69,11 +71,13 @@ async Task Send(List<Data> list)
             row += " " + tmp;
         }
         data += row;
+        var file = first.Station.Organization.Country.Code + "-" + first.Station.Code + "-" + DateTime.Now.ToString("yyyyMMddHHmmss");
 
         var client = new HttpClient();
-        client.DefaultRequestHeaders.Add("filename", Uri.EscapeDataString(first.Station.Organization.Country.Code + "-" + first.Station.Code + "-" + DateTime.Now.ToString("yyyyMMddHHmmss")));
-        client.DefaultRequestHeaders.Add("datapack", Uri.EscapeDataString(data));
-        await client.PostAsync(endpoint, null);
+        var content = new ByteArrayContent(Encoding.UTF8.GetBytes("filename=" + Uri.EscapeDataString(file) + "&datapack=" + Uri.EscapeDataString(data)));
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+        var response = await client.PostAsync(endpoint, content);
+        Console.WriteLine(response.Content.ReadAsStringAsync().Result);
         client.Dispose();
     }
     catch (Exception e)
