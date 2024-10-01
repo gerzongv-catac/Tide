@@ -12,9 +12,9 @@ public class Param
 
     public int SerialBaudRate { get; private set; } = 9600;
 
-    public int Average { get; private set; } = 1;
+    public int Average { get; private set; } = 16;
 
-    public int Format { get; private set; } = 2;
+    public int Format { get; private set; } = 3;
 
     public int Decimals { get; private set; } = 2;
 

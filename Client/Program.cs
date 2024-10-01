@@ -11,11 +11,10 @@ using Client.Util;
 
 Param param;
 SerialPort sp;
-bool test, view, initSample = true, initPackage = true;
-int count = 0, countSample = 0;
+bool test, view, initPackage = true;
+var count = 0;
 var list = new List<Plot.Point>();
-DateTime firstSample = DateTime.Now, firstPackage = DateTime.Now;
-var sum = 0f;
+DateTime firstPackage = DateTime.Now;
 var dataList = new List<Data>();
 var jsonOpt = new JsonSerializerOptions
 {
@@ -55,9 +54,9 @@ else
 
     test = args[1] == "-t";
     view = args[1] == "-v";
-    
+
     sp.DataReceived += DataReceivedHandler;
-    
+
     if (test)
     {
         try
@@ -100,61 +99,46 @@ void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
     }
     else
     {
-        if (initSample)
+        if (initPackage)
         {
-            countSample = 0;
-            sum = 0;
-            initSample = false;
-            firstSample = DateTime.Now;
+            dataList.Clear();
+            initPackage = false;
+            firstPackage = DateTime.Now;
         }
-        var diff = DateTime.Now - firstSample;
-        sum += value;
-        countSample++;
-        if (diff.TotalSeconds >= 1)
+        var diff = DateTime.Now - firstPackage;
+        if (diff.TotalSeconds <= 5)
         {
-            var sample = sum / countSample;
-            if (initPackage)
+            var data = new Data
             {
-                dataList.Clear();
-                initPackage = false;
-                firstPackage = DateTime.Now;
+                Time = DateTime.Now,
+                Value = value
+            };
+            dataList.Add(data);
+            if (view)
+            {
+                Console.WriteLine(data.ToString());
             }
-            diff = DateTime.Now - firstPackage;
-            if (diff.TotalSeconds <= 5)
+            if (param.LogFile is { Length: > 0 })
             {
-                var data = new Data
+                try
                 {
-                    Time = DateTime.Now,
-                    Value = sample
-                };
-                dataList.Add(data);
-                if (view)
-                {
-                    Console.WriteLine(data.ToString());
-                }
-                if (param.LogFile is { Length: > 0 })
-                {
-                    try
+                    var dir = Directory.CreateDirectory(param.LogFile);
+                    if (dir.Exists)
                     {
-                        var dir = Directory.CreateDirectory(param.LogFile);
-                        if (dir.Exists)
-                        {
-                            using var outputFile = new StreamWriter(param.LogFile + "/" + DateTime.Now.ToString("yyyyMMdd") + ".csv", true);
-                            _ = outputFile.WriteLineAsync(data.ToString());
-                        }
-                    }
-                    catch (Exception err)
-                    {
-                        Console.WriteLine(err.Message);
+                        using var outputFile = new StreamWriter(param.LogFile + "/" + DateTime.Now.ToString("yyyyMMdd") + ".csv", true);
+                        _ = outputFile.WriteLineAsync(data.ToString());
                     }
                 }
+                catch (Exception err)
+                {
+                    Console.WriteLine(err.Message);
+                }
             }
-            else
-            {
-                _ = Task.Run(() => Send(dataList.AsReadOnly()));
-                initPackage = true;
-            }
-            initSample = true;
+        }
+        else
+        {
+            _ = Task.Run(() => Send(dataList.AsReadOnly()));
+            initPackage = true;
         }
     }
 }
