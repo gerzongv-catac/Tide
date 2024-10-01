@@ -12,5 +12,5 @@ public class Data
 
     public float Value { get; set; } = -1;
 
-    public override string ToString() => Time.ToString("yy/MM/dd-HH:mm:ss.ff") + ", " + Value.ToString("###0.00");
+    public override string ToString() => $"{Time:yy/MM/dd-HH:mm:ss.ff}, {Value:###0.00}";
 }

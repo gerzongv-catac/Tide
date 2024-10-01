@@ -11,11 +11,10 @@ using Client.Util;
 
 Param param;
 SerialPort sp;
-bool test, view, initSample = true, initPackage = true;
-int count = 0, countSample = 0;
+bool test, view, initPackage = true;
+var count = 0;
 var list = new List<Plot.Point>();
-DateTime firstSample = DateTime.Now, firstPackage = DateTime.Now;
-var sum = 0f;
+DateTime firstPackage = DateTime.Now;
 var dataList = new List<Data>();
 var jsonOpt = new JsonSerializerOptions
 {
@@ -32,9 +31,8 @@ else
     param = Param.GetInstance(args[0]);
 
     const string df = "yyyy/MM/dd-HH:mm:ss";
-    Console.WriteLine("INIT \"" + param.StationCode + "\" to \"" + param.EndPoint + "\" - " + DateTime.Now.ToString(df));
-    Console.WriteLine("__________________________________________________________________");
-    Console.WriteLine();
+
+    Console.WriteLine($"INIT \"{param.StationCode}\" to \"{param.EndPoint}\" - {DateTime.Now.ToString(df)}\n__________________________________________________________________\n");
 
     sp = new SerialPort(param.SerialPort);
 
@@ -46,18 +44,23 @@ else
     sp.RtsEnable = true;
 
     sp.Open();
-    sp.WriteLine("NAVG=" + param.Average + "\r");
-    sp.WriteLine("OUTPUTFORMAT=" + param.Format + "\r");
-    sp.WriteLine("DECIMALS=" + param.Decimals + "\r");
-    sp.WriteLine("LATITUDE=" + param.Latitude + "\r");
+    sp.WriteLine($"NAVG={param.Average}\r");
+    sp.WriteLine($"OUTPUTFORMAT={param.Format}\r");
+    sp.WriteLine($"DECIMALS={param.Decimals}\r");
+    sp.WriteLine($"LATITUDE={param.Latitude:###0.00}\r");
     sp.WriteLine("AUTORUN=N\r");
     sp.WriteLine("START\r");
 
     test = args[1] == "-t";
     view = args[1] == "-v";
-    
+
+    while (DateTime.Now.Second != 59)
+    {
+
+    }
+
     sp.DataReceived += DataReceivedHandler;
-    
+
     if (test)
     {
         try
@@ -68,9 +71,7 @@ else
         {
             Console.WriteLine(e.Message);
         }
-        Console.WriteLine("\b");
-        Console.WriteLine("__________________________________________________________________");
-        Console.WriteLine("END - " + DateTime.Now.ToString(df));
+        Console.WriteLine($"\b\n__________________________________________________________________\nEND - {DateTime.Now.ToString(df)}\n");
     }
     else
     {
@@ -92,7 +93,7 @@ void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
     {
         count++;
         list.Add(new Plot.Point(count, (int)(value * 10)));
-        if (count >= 100)
+        if (count >= 20)
         {
             sp.Close();
             Plot.DrawChart(list);
@@ -100,61 +101,46 @@ void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
     }
     else
     {
-        if (initSample)
+        if (initPackage)
         {
-            countSample = 0;
-            sum = 0;
-            initSample = false;
-            firstSample = DateTime.Now;
+            dataList.Clear();
+            initPackage = false;
+            firstPackage = DateTime.Now;
         }
-        var diff = DateTime.Now - firstSample;
-        sum += value;
-        countSample++;
-        if (diff.TotalSeconds >= 1)
+        var diff = DateTime.Now - firstPackage;
+        if (diff.TotalMinutes <= 5)
         {
-            var sample = sum / countSample;
-            if (initPackage)
+            var data = new Data
             {
-                dataList.Clear();
-                initPackage = false;
-                firstPackage = DateTime.Now;
+                Time = DateTime.Now,
+                Value = value
+            };
+            dataList.Add(data);
+            if (view)
+            {
+                Console.WriteLine(data.ToString());
             }
-            diff = DateTime.Now - firstPackage;
-            if (diff.TotalSeconds <= 5)
+            if (param.LogPath is { Length: > 0 })
             {
-                var data = new Data
+                try
                 {
-                    Time = DateTime.Now,
-                    Value = sample
-                };
-                dataList.Add(data);
-                if (view)
-                {
-                    Console.WriteLine(data.ToString());
-                }
-                if (param.LogFile is { Length: > 0 })
-                {
-                    try
+                    var dir = Directory.CreateDirectory(param.LogPath);
+                    if (dir.Exists)
                     {
-                        var dir = Directory.CreateDirectory(param.LogFile);
-                        if (dir.Exists)
-                        {
-                            using var outputFile = new StreamWriter(param.LogFile + "/" + DateTime.Now.ToString("yyyyMMdd") + ".csv", true);
-                            _ = outputFile.WriteLineAsync(data.ToString());
-                        }
-                    }
-                    catch (Exception err)
-                    {
-                        Console.WriteLine(err.Message);
+                        using var outputFile = new StreamWriter($"{param.LogPath}/{DateTime.Now:yyyyMMdd}.csv", true);
+                        _ = outputFile.WriteLineAsync(data.ToString());
                     }
                 }
+                catch (Exception err)
+                {
+                    Console.WriteLine(err.Message);
+                }
             }
-            else
-            {
-                _ = Task.Run(() => Send(dataList.AsReadOnly()));
-                initPackage = true;
-            }
-            initSample = true;
+        }
+        else
+        {
+            _ = Task.Run(() => Send(dataList.AsReadOnly()));
+            initPackage = true;
         }
     }
 }
@@ -164,12 +150,12 @@ async Task Send(ReadOnlyCollection<Data> ds)
     try
     {
         var client = new HttpClient();
-        await client.PostAsJsonAsync(param.EndPoint + "/" + param.StationCode, ds, jsonOpt);
+        await client.PostAsJsonAsync($"{param.EndPoint}/{param.StationCode}", ds, jsonOpt);
         client.Dispose();
     }
     catch (Exception e)
     {
         Console.WriteLine(e.Message);
     }
-    //Console.WriteLine(ds.Count);
+    Console.WriteLine($"Sending package with {ds.Count} samples");
 }

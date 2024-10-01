@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "OylIY1RMSqI=",
+  "dgSpecHash": "FqrfWTjk6UI=",
   "success": true,
   "projectFilePath": "/Users/gerzon/INETER/CATAC/Tide/Client/Client.csproj",
   "expectedPackageFiles": [
@@ -10,7 +10,11 @@
     "/Users/gerzon/.nuget/packages/runtime.native.system.io.ports/8.0.0/runtime.native.system.io.ports.8.0.0.nupkg.sha512",
     "/Users/gerzon/.nuget/packages/runtime.osx-arm64.runtime.native.system.io.ports/8.0.0/runtime.osx-arm64.runtime.native.system.io.ports.8.0.0.nupkg.sha512",
     "/Users/gerzon/.nuget/packages/runtime.osx-x64.runtime.native.system.io.ports/8.0.0/runtime.osx-x64.runtime.native.system.io.ports.8.0.0.nupkg.sha512",
-    "/Users/gerzon/.nuget/packages/system.io.ports/8.0.0/system.io.ports.8.0.0.nupkg.sha512"
+    "/Users/gerzon/.nuget/packages/system.io.ports/8.0.0/system.io.ports.8.0.0.nupkg.sha512",
+    "/Users/gerzon/.nuget/packages/microsoft.netcore.app.runtime.linux-arm64/8.0.8/microsoft.netcore.app.runtime.linux-arm64.8.0.8.nupkg.sha512",
+    "/Users/gerzon/.nuget/packages/microsoft.aspnetcore.app.runtime.linux-arm64/8.0.8/microsoft.aspnetcore.app.runtime.linux-arm64.8.0.8.nupkg.sha512",
+    "/Users/gerzon/.nuget/packages/microsoft.netcore.app.crossgen2.osx-arm64/8.0.8/microsoft.netcore.app.crossgen2.osx-arm64.8.0.8.nupkg.sha512",
+    "/Users/gerzon/.nuget/packages/microsoft.netcore.app.host.linux-arm64/8.0.8/microsoft.netcore.app.host.linux-arm64.8.0.8.nupkg.sha512"
   ],
   "logs": []
 }

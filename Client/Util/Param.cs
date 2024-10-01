@@ -12,9 +12,9 @@ public class Param
 
     public int SerialBaudRate { get; private set; } = 9600;
 
-    public int Average { get; private set; } = 1;
+    public int Average { get; private set; } = 16;
 
-    public int Format { get; private set; } = 2;
+    public int Format { get; private set; } = 3;
 
     public int Decimals { get; private set; } = 2;
 
@@ -24,7 +24,7 @@ public class Param
 
     public string EndPoint { get; private set; } = string.Empty;
 
-    public string? LogFile { get; private set; }
+    public string? LogPath { get; private set; }
 
     public static Param GetInstance(string file)
     {
@@ -55,13 +55,13 @@ public class Param
                         obj.Decimals = int.Parse(value);
                         break;
                     case "latitude":
-                        obj.Latitude = int.Parse(value);
+                        obj.Latitude = double.Parse(value);
                         break;
                     case "station.code":
                         obj.StationCode = value;
                         break;
-                    case "log.file":
-                        obj.LogFile = value;
+                    case "log.path":
+                        obj.LogPath = value;
                         break;
                     case "server.endpoint":
                         obj.EndPoint = value;

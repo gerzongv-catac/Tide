@@ -59,22 +59,33 @@ async Task Send(List<Data> list)
     try
     {
         var first = list.First();
-        var data = "ID:" + first.Station!.Organization.Country.Code + "-" + first.Station.Code + "-00 DT:" + first.Time.ToString("yyyy MM dd HH mm") + "\r\n";
+        var data = $"ID:{first.Station!.Organization.Country.Code}-{first.Station.Code}-00 DT:{first.Time:yyyy MM dd HH mm}\r\n";
         var row = ":PRS /1";
-        foreach (var str in list.Select(obj => "00000" + (int)(obj.Value * 1000)))
+
+        var last = first.Time;
+        var sum = 0f;
+        var count = 0;
+        foreach (var obj in list)
         {
-            var tmp = str;
-            if (tmp.Length > 5)
+            if (last.Minute == obj.Time.Minute)
             {
-                tmp = str.Substring(str.Length - 5);
+                count++;
+                sum += obj.Value;
             }
-            row += " " + tmp;
+            else
+            {
+                row += CreateValue(sum / count);
+                count = 1;
+                sum = obj.Value;
+                last = obj.Time;
+            }
         }
+        row += CreateValue(sum / count);
         data += row;
-        var file = first.Station.Organization.Country.Code + "-" + first.Station.Code + "-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+        var file = $"{first.Station.Organization.Country.Code}-{first.Station.Code}-{DateTime.Now:yyyyMMddHHmmss}";
 
         var client = new HttpClient();
-        var content = new ByteArrayContent(Encoding.UTF8.GetBytes("filename=" + Uri.EscapeDataString(file) + "&datapack=" + Uri.EscapeDataString(data)));
+        var content = new ByteArrayContent(Encoding.UTF8.GetBytes($"filename={Uri.EscapeDataString(file)}&datapack={Uri.EscapeDataString(data)}"));
         content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
         var response = await client.PostAsync(endpoint, content);
         Console.WriteLine(response.Content.ReadAsStringAsync().Result);
@@ -84,4 +95,15 @@ async Task Send(List<Data> list)
     {
         Console.WriteLine(e.Message);
     }
+}
+
+string CreateValue(float value)
+{
+    var str = $"00000{(int)(value * 1000)}";
+    var tmp = str;
+    if (tmp.Length > 5)
+    {
+        tmp = str.Substring(str.Length - 5);
+    }
+    return $" {tmp}";
 }
