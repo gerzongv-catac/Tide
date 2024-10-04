@@ -10,6 +10,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3B3AD50E-13B7-43C2-82E8-9EDA3223A51C}"
 	ProjectSection(SolutionItems) = preProject
 		Database.sql = Database.sql
+		README.md = README.md
+		icon.png = icon.png
 	EndProjectSection
 EndProject
 Global
