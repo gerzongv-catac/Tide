@@ -103,7 +103,7 @@ string CreateValue(float value)
     var tmp = str;
     if (tmp.Length > 5)
     {
-        tmp = str.Substring(str.Length - 5);
+        tmp = str[^5..];
     }
     return $" {tmp}";
 }

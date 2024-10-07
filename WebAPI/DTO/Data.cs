@@ -17,7 +17,7 @@ public class Data
     public int Id { get; set; }
 
     [Required]
-    public  Station? Station { get; set; }
+    public Station? Station { get; set; }
 
     [Required]
     public DateTime Time { get; init; } = DateTime.Now;

@@ -2,6 +2,7 @@
  * El código fuente de este archivo es propiedad intelectual de Gerzon Gonzalez.
  */
 using Microsoft.EntityFrameworkCore;
+using WebAPI.DTO;
 
 namespace WebAPI.Data;
 
@@ -10,11 +11,11 @@ namespace WebAPI.Data;
  */
 public class CustomDbContext(DbContextOptions<CustomDbContext> options) : DbContext(options)
 {
-    public virtual DbSet<DTO.Country> Countries => Set<DTO.Country>();
-    
-    public virtual DbSet<DTO.Organization> Organizations => Set<DTO.Organization>();
-    
-    public virtual DbSet<DTO.Station> Stations => Set<DTO.Station>();
-    
+    public virtual DbSet<Country> Countries => Set<Country>();
+
+    public virtual DbSet<Organization> Organizations => Set<Organization>();
+
+    public virtual DbSet<Station> Stations => Set<Station>();
+
     public virtual DbSet<DTO.Data> Data => Set<DTO.Data>();
 }

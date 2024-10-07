@@ -5,14 +5,16 @@ VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Client\Client.csproj", "{350BA349-D123-4A6E-B3CE-8644DA5F224E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI", "WebAPI\WebAPI.csproj", "{AD0355F2-6B5E-4B94-995D-2B1415D9720E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "WebAPI\WebAPI.csproj", "{AD0355F2-6B5E-4B94-995D-2B1415D9720E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3B3AD50E-13B7-43C2-82E8-9EDA3223A51C}"
 	ProjectSection(SolutionItems) = preProject
 		Database.sql = Database.sql
-		README.md = README.md
 		icon.png = icon.png
+		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viewer", "Viewer\Viewer.csproj", "{4AE35E29-C37B-445A-803B-9400708C4913}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +30,10 @@ Global
 		{AD0355F2-6B5E-4B94-995D-2B1415D9720E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD0355F2-6B5E-4B94-995D-2B1415D9720E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD0355F2-6B5E-4B94-995D-2B1415D9720E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AE35E29-C37B-445A-803B-9400708C4913}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AE35E29-C37B-445A-803B-9400708C4913}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AE35E29-C37B-445A-803B-9400708C4913}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AE35E29-C37B-445A-803B-9400708C4913}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -23,6 +23,6 @@ public class Country
 
     [Required]
     public required bool Active { get; init; }
-    
+
     public ICollection<Organization> Organizations { get; set; } = new List<Organization>();
 }

@@ -14,7 +14,7 @@ SerialPort sp;
 bool test, view, initPackage = true;
 var count = 0;
 var list = new List<Plot.Point>();
-DateTime firstPackage = DateTime.Now;
+var firstPackage = DateTime.Now;
 var dataList = new List<Data>();
 var jsonOpt = new JsonSerializerOptions
 {
@@ -44,12 +44,12 @@ else
     sp.RtsEnable = true;
 
     sp.Open();
-    sp.WriteLine($"NAVG={param.Average}\r");
-    sp.WriteLine($"OUTPUTFORMAT={param.Format}\r");
-    sp.WriteLine($"DECIMALS={param.Decimals}\r");
-    sp.WriteLine($"LATITUDE={param.Latitude:###0.00}\r");
-    sp.WriteLine("AUTORUN=N\r");
-    sp.WriteLine("START\r");
+    sp.Write($"NAVG={param.Average}\r\n");
+    sp.Write($"OUTPUTFORMAT={param.Format}\r\n");
+    sp.Write($"DECIMALS={param.Decimals}\r\n");
+    sp.Write($"LATITUDE={param.Latitude:###0.00}\r\n");
+    sp.Write("AUTORUN=N\r\n");
+    sp.Write("START\r\n");
 
     test = args[1] == "-t";
     view = args[1] == "-v";
