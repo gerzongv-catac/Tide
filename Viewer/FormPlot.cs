@@ -1,7 +1,6 @@
 /*
  * El código fuente de este archivo es propiedad intelectual de Gerzon Gonzalez.
  */
-
 using System.IO.Ports;
 using System.Windows.Forms.DataVisualization.Charting;
 using Viewer.Properties;
