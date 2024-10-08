@@ -20,6 +20,7 @@ var jsonOpt = new JsonSerializerOptions
 {
     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 };
+bool isOpen;
 
 //run.config -v
 if (args.Length < 2 || !(args[1] == "-t" || args[1] == "-r" || args[1] == "-v"))
@@ -58,8 +59,8 @@ else
     {
 
     }
-
-    sp.DataReceived += DataReceivedHandler;
+    isOpen = true;
+    await Run();
 
     if (test)
     {
@@ -73,75 +74,78 @@ else
         }
         Console.WriteLine($"\b\n__________________________________________________________________\nEND - {DateTime.Now.ToString(df)}\n");
     }
-    else
-    {
-        while (true)
-        {
-
-        }
-    }
 }
 return;
 
-void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+async Task Run()
 {
-    if (!float.TryParse(((SerialPort)sender).ReadExisting(), out var value))
+    if (sp is { IsOpen: true })
     {
-        return;
-    }
-    if (test)
-    {
-        count++;
-        list.Add(new Plot.Point(count, (int)(value * 10)));
-        if (count >= 20)
+        using var reader = new StreamReader(sp.BaseStream);
+        while (isOpen)
         {
-            sp.Close();
-            Plot.DrawChart(list);
-        }
-    }
-    else
-    {
-        if (initPackage)
-        {
-            dataList.Clear();
-            initPackage = false;
-            firstPackage = DateTime.Now;
-        }
-        var diff = DateTime.Now - firstPackage;
-        if (diff.TotalMinutes <= 5)
-        {
-            var data = new Data
+            var text = await reader.ReadLineAsync();
+            if (text == null)
             {
-                Time = DateTime.Now,
-                Value = value
-            };
-            dataList.Add(data);
-            if (view)
-            {
-                Console.WriteLine(data.ToString());
+                continue;
             }
-            if (param.LogPath is { Length: > 0 })
+            if (!float.TryParse(text, out var value))
             {
-                try
+                return;
+            }
+            if (test)
+            {
+                count++;
+                list.Add(new Plot.Point(count, (int)(value * 10)));
+                if (count < 20) continue;
+                isOpen = false;
+                Plot.DrawChart(list);
+            }
+            else
+            {
+                if (initPackage)
                 {
-                    var dir = Directory.CreateDirectory(param.LogPath);
-                    if (dir.Exists)
+                    dataList.Clear();
+                    initPackage = false;
+                    firstPackage = DateTime.Now;
+                }
+                var diff = DateTime.Now - firstPackage;
+                if (diff.TotalMinutes <= 5)
+                {
+                    var data = new Data
                     {
-                        using var outputFile = new StreamWriter($"{param.LogPath}/{DateTime.Now:yyyyMMdd}.csv", true);
-                        _ = outputFile.WriteLineAsync(data.ToString());
+                        Time = DateTime.Now,
+                        Value = value
+                    };
+                    dataList.Add(data);
+                    if (view)
+                    {
+                        Console.WriteLine(data.ToString());
+                    }
+
+                    if (param.LogPath is not { Length: > 0 }) continue;
+                    try
+                    {
+                        var dir = Directory.CreateDirectory(param.LogPath);
+                        if (dir.Exists)
+                        {
+                            await using var outputFile = new StreamWriter($"{param.LogPath}/{DateTime.Now:yyyyMMdd}.csv", true);
+                            _ = outputFile.WriteLineAsync(data.ToString());
+                        }
+                    }
+                    catch (Exception err)
+                    {
+                        Console.WriteLine(err.Message);
                     }
                 }
-                catch (Exception err)
+                else
                 {
-                    Console.WriteLine(err.Message);
+                    _ = Send(dataList.AsReadOnly());
+                    initPackage = true;
                 }
             }
         }
-        else
-        {
-            _ = Task.Run(() => Send(dataList.AsReadOnly()));
-            initPackage = true;
-        }
+        sp.Close();
     }
 }
 
